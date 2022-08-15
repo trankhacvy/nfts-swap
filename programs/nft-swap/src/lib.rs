@@ -19,8 +19,8 @@ pub mod nft_swap {
         create_listing::handler(ctx)
     }
 
-    pub fn close_listing(ctx: Context<CloseListing>) -> Result<()> {
-        close_listing::handler(ctx)
+    pub fn cancel_listing(ctx: Context<CancelListing>) -> Result<()> {
+        cancel_listing::handler(ctx)
     }
 
     pub fn create_offer(ctx: Context<CreateOffer>) -> Result<()> {

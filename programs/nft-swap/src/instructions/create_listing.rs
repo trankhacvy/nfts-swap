@@ -42,15 +42,7 @@ pub fn handler(ctx: Context<CreateListing>) -> Result<()> {
     ctx.accounts.nft_escrow.nft_mint = ctx.accounts.initializer_nft_mint.key();
     ctx.accounts.nft_escrow.nft_escrow_token_account = ctx.accounts.nft_escrow_token_account.key();
 
-    // transfer nft from initializer to escrow
-    let cpi_accounts = Transfer {
-        from: ctx.accounts.initializer_nft_token_account.to_account_info(),
-        to: ctx.accounts.nft_escrow_token_account.to_account_info(),
-        authority: ctx.accounts.initializer.to_account_info(),
-    };
-    let cpi_program = ctx.accounts.token_program.to_account_info();
-    let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-    token::transfer(cpi_ctx, 1)?;
+    token::transfer(ctx.accounts.into_transfer_to_escrow_context(), 1)?;
 
     emit!(ListingEvent {
         initializer: ctx.accounts.initializer.key(),
@@ -58,4 +50,16 @@ pub fn handler(ctx: Context<CreateListing>) -> Result<()> {
     });
 
     Ok(())
+}
+
+impl<'info> CreateListing<'info> {
+    fn into_transfer_to_escrow_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
+        let cpi_accounts = Transfer {
+            from: self.initializer_nft_token_account.to_account_info().clone(),
+            to: self.nft_escrow_token_account.to_account_info().clone(),
+            authority: self.initializer.to_account_info().clone(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
 }

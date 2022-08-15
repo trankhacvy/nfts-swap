@@ -8,7 +8,7 @@ import {
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { TryAgain } from "../target/types/try_again";
+import { NftSwap } from "../target/types/nft_swap";
 import { MINT_SIZE } from "@solana/spl-token";
 import {
   getMinimumBalanceForRentExemptMint,
@@ -24,7 +24,7 @@ describe("nft-swap", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.TryAgain as Program<TryAgain>;
+  const program = anchor.workspace.NftSwap as Program<NftSwap>;
 
   const initializerMintKP = Keypair.generate();
   const bidderMintKP = Keypair.generate();
@@ -371,7 +371,7 @@ describe("nft-swap", () => {
 
     try {
       await program.methods
-        .closeListing()
+        .cancelListing()
         .accounts({
           initializer: provider.wallet.publicKey,
           initializerNftMint: initializerMintKP.publicKey,

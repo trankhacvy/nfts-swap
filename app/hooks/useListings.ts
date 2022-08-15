@@ -14,7 +14,8 @@ export const useListings = () => {
   );
 
   return {
-    listings: data ?? [],
+    listings: (data ?? []).filter((listing) => !listing.accepted_offer),
+    acceptedListings: (data ?? []).filter((listing) => listing.accepted_offer),
     isFirstLoading,
   };
 };

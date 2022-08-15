@@ -1,10 +1,10 @@
 use crate::errors::AppError;
-use crate::state::{NftEscrow, CancelListingEvent};
+use crate::state::{CancelListingEvent, NftEscrow};
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, CloseAccount, Mint, Token, TokenAccount, Transfer};
 
 #[derive(Accounts)]
-pub struct CloseListing<'info> {
+pub struct CancelListing<'info> {
     #[account(mut)]
     pub initializer: Signer<'info>,
     #[account(constraint = initializer_nft_mint.decimals == 0)]
@@ -31,7 +31,7 @@ pub struct CloseListing<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<CloseListing>) -> Result<()> {
+pub fn handler(ctx: Context<CancelListing>) -> Result<()> {
     // transfer nft back to initializer
     let initializer_nft_mint_key = ctx.accounts.initializer_nft_mint.key();
     let signer: &[&[&[u8]]] = &[&[
@@ -39,25 +39,19 @@ pub fn handler(ctx: Context<CloseListing>) -> Result<()> {
         initializer_nft_mint_key.as_ref(),
         &[*ctx.bumps.get("nft_escrow").unwrap()],
     ]];
-    
-    let cpi_accounts = Transfer {
-        from: ctx.accounts.nft_escrow_token_account.to_account_info(),
-        to: ctx.accounts.initializer_nft_token_account.to_account_info(),
-        authority: ctx.accounts.nft_escrow.to_account_info(),
-    };
-    let cpi_program = ctx.accounts.token_program.to_account_info();
-    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-    token::transfer(cpi_ctx, 1)?;
 
-    // close token account
-    let cpi_accounts1 = CloseAccount {
-        account: ctx.accounts.nft_escrow_token_account.to_account_info(),
-        destination: ctx.accounts.initializer.to_account_info(),
-        authority: ctx.accounts.nft_escrow.to_account_info(),
-    };
-    let cpi_program1 = ctx.accounts.token_program.to_account_info();
-    let cpi_ctx1 = CpiContext::new_with_signer(cpi_program1, cpi_accounts1, signer);
-    token::close_account(cpi_ctx1)?;
+    token::transfer(
+        ctx.accounts
+            .into_transfer_to_initializer_context()
+            .with_signer(signer),
+        1,
+    )?;
+
+    token::close_account(
+        ctx.accounts
+            .into_close_account_context()
+            .with_signer(signer),
+    )?;
 
     emit!(CancelListingEvent {
         initializer: ctx.accounts.initializer.key(),
@@ -65,4 +59,28 @@ pub fn handler(ctx: Context<CloseListing>) -> Result<()> {
     });
 
     Ok(())
+}
+
+impl<'info> CancelListing<'info> {
+    fn into_transfer_to_initializer_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
+        let cpi_accounts = Transfer {
+            from: self.nft_escrow_token_account.to_account_info().clone(),
+            to: self.initializer_nft_token_account.to_account_info().clone(),
+            authority: self.nft_escrow.to_account_info().clone(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
+
+    fn into_close_account_context(
+        &self,
+    ) -> CpiContext<'_, '_, '_, 'info, CloseAccount<'info>> {
+        let cpi_accounts = CloseAccount {
+            account: self.nft_escrow_token_account.to_account_info().clone(),
+            destination: self.initializer.to_account_info().clone(),
+            authority: self.nft_escrow.to_account_info().clone(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
 }

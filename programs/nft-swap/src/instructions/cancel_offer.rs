@@ -43,24 +43,41 @@ pub fn handler(ctx: Context<CancelOffer>) -> Result<()> {
         bidder_nft_mint_key.as_ref(),
         &[*ctx.bumps.get("nft_offer_escrow").unwrap()],
     ]];
-    let cpi_accounts = Transfer {
-        from: ctx.accounts.nft_escrow_token_account.to_account_info(),
-        to: ctx.accounts.bidder_nft_token_account.to_account_info(),
-        authority: ctx.accounts.nft_offer_escrow.to_account_info(),
-    };
-    let cpi_program = ctx.accounts.token_program.to_account_info();
-    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-    token::transfer(cpi_ctx, 1)?;
 
-    // close token account
-    let cpi_accounts1 = CloseAccount {
-        account: ctx.accounts.nft_escrow_token_account.to_account_info(),
-        destination: ctx.accounts.bidder.to_account_info(),
-        authority: ctx.accounts.nft_offer_escrow.to_account_info(),
-    };
-    let cpi_program1 = ctx.accounts.token_program.to_account_info();
-    let cpi_ctx1 = CpiContext::new_with_signer(cpi_program1, cpi_accounts1, signer);
-    token::close_account(cpi_ctx1)?;
+    token::transfer(
+        ctx.accounts
+            .into_transfer_to_bidder_context()
+            .with_signer(signer),
+        1,
+    )?;
+
+    token::close_account(
+        ctx.accounts
+            .into_close_account_context()
+            .with_signer(signer),
+    )?;
 
     Ok(())
+}
+
+impl<'info> CancelOffer<'info> {
+    fn into_transfer_to_bidder_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
+        let cpi_accounts = Transfer {
+            from: self.nft_escrow_token_account.to_account_info().clone(),
+            to: self.bidder_nft_token_account.to_account_info().clone(),
+            authority: self.nft_offer_escrow.to_account_info().clone(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
+
+    fn into_close_account_context(&self) -> CpiContext<'_, '_, '_, 'info, CloseAccount<'info>> {
+        let cpi_accounts = CloseAccount {
+            account: self.nft_escrow_token_account.to_account_info().clone(),
+            destination: self.bidder.to_account_info().clone(),
+            authority: self.nft_offer_escrow.to_account_info().clone(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
 }

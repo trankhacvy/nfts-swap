@@ -22,13 +22,9 @@ import { APP_NAME } from "constants/config";
 
 type ItemDetailsProps = {
   listing: Listings;
-  ogImage: string;
 };
 
-const ItemDetails = ({
-  listing: preloadListing,
-  ogImage,
-}: ItemDetailsProps) => {
+const ItemDetails = ({ listing: preloadListing }: ItemDetailsProps) => {
   const {
     push,
     query: { address },
@@ -44,6 +40,7 @@ const ItemDetails = ({
   const isOwner = connected && publicKey?.toBase58() === listing?.initializer;
   const isNotOwner =
     connected && publicKey?.toBase58() !== listing?.initializer;
+  const isDone = !!listing?.accepted_offer;
 
   return (
     <div className="max-w-screen-xl mx-auto pt-20 pb-40">
@@ -66,7 +63,7 @@ const ItemDetails = ({
             {
               width: 400,
               height: 400,
-              url: `/output/${preloadListing?.id}.png`,
+              url: preloadListing?.image ?? "",
             },
           ],
         }}
@@ -86,7 +83,14 @@ const ItemDetails = ({
               </div>
             </div>
             <div className="w-1/2 px-4">
-              <h2 className="heading-h3 mb-1">{listing?.name}</h2>
+              <div className="flex items-center space-x-2">
+                <h2 className="heading-h3 mb-1">{listing?.name}</h2>
+                {isDone && (
+                  <span className="px-2 py-1 text-body2 font-semibold rounded-xl bg-green-500">
+                    Offer Accepted
+                  </span>
+                )}
+              </div>
               {listing?.initializer && (
                 <p className="text-body1 text-gray-500">
                   Owner:{" "}
@@ -109,7 +113,7 @@ const ItemDetails = ({
               </div>
               <div className="mt-10">
                 <CancelButton isOwner={isOwner} listing={listing} />
-                {isNotOwner && (
+                {isNotOwner && !isDone && (
                   <Button
                     onClick={() => push(`${asPath}/make-offer`)}
                     className="w-full"
@@ -166,16 +170,16 @@ const CancelButton = ({ listing, isOwner }: CancelButtonProps) => {
       setLoading(true);
       await program.cancelListing(new PublicKey(listing.mint));
       await repo.delete(listing.id);
-      setLoading(false);
-      toast.success("Success");
+      toast.success("Your listing has been cancelled.");
       push("/");
+      setLoading(false);
     } catch (error: any) {
       setLoading(false);
       toast.error(error.message);
     }
   };
 
-  if (!isOwner) return null;
+  if (!isOwner || !!listing.accepted_offer) return null;
 
   return (
     <Button
@@ -237,7 +241,6 @@ export async function getStaticProps(context: GetStaticPropsContext) {
     if (address) {
       const repo = new ListingsRepository();
       const listing = await repo.findByMint(address as string);
-      await fetchOGImage(listing?.image ?? "", address as string);
       return {
         props: {
           listing,
@@ -252,15 +255,5 @@ export async function getStaticProps(context: GetStaticPropsContext) {
     };
   }
 }
-
-const fetchOGImage = async (image: string, address: string) => {
-  try {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_HOST}/api/image?imageUrl=${image}&address=${address}`
-    );
-  } catch (error) {
-    return "";
-  }
-};
 
 export default ItemDetails;

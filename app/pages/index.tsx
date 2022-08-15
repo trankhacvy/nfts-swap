@@ -5,7 +5,7 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
-  const { listings, isFirstLoading } = useListings();
+  const { listings, acceptedListings, isFirstLoading } = useListings();
   const { push } = useRouter();
   return (
     <div className="container mx-auto">
@@ -46,6 +46,20 @@ const Home: NextPage = () => {
                 <ListingCard key={item.id} listing={item} />
               ))}
         </div>
+        {acceptedListings.length > 0 && (
+          <>
+            <h2 className="heading-h2 mb-10 mt-20">Deals done ✅</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+              {isFirstLoading
+                ? Array.from({ length: 12 }).map((_, idx) => (
+                    <ListingCardSkeleton key={`skeleton-${idx}`} />
+                  ))
+                : acceptedListings.map((item) => (
+                    <ListingCard key={item.id} listing={item} />
+                  ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

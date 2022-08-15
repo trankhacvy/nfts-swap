@@ -50,9 +50,9 @@ export const OfferModal = ({ nft, isOpen, onClose }: OfferModalProps) => {
         collection_address: nft.collection?.address.toBase58(),
         collection_name: nft.json?.collection?.name,
       });
+      toast.success("Your Offer has been submitted.");
+      push(`/item-detail/${address}`);
       setLoading(false);
-      toast.success("Success");
-      push(`/item-detail/${nft.mint.address.toBase58()}`);
     } catch (error: any) {
       setLoading(false);
       toast.error(error.message);

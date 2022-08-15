@@ -1,8 +1,8 @@
 pub mod create_listing;
 pub use create_listing::*;
 
-pub mod close_listing;
-pub use close_listing::*;
+pub mod cancel_listing;
+pub use cancel_listing::*;
 
 pub mod create_offer;
 pub use create_offer::*;

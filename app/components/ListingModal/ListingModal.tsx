@@ -42,9 +42,9 @@ export const ListingModal = ({ nft, isOpen, onClose }: ListingModalProps) => {
         collection_address: nft.collection?.address.toBase58(),
         collection_name: nft.json?.collection?.name,
       });
-      setLoading(false);
-      toast.success("Success");
+      toast.success("Your NFT has been listed.");
       push("/");
+      setLoading(false);
     } catch (error: any) {
       setLoading(false);
       toast.error(error.message);

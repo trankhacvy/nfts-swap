@@ -51,15 +51,19 @@ pub fn handler(ctx: Context<CreateOffer>) -> Result<()> {
         ctx.accounts.nft_escrow_token_account.key();
     ctx.accounts.nft_offer_escrow.listing_escrow = ctx.accounts.listing_escrow.key();
 
-    // transfer nft from initializer to escrow
-    let cpi_accounts = Transfer {
-        from: ctx.accounts.bidder_nft_token_account.to_account_info(),
-        to: ctx.accounts.nft_escrow_token_account.to_account_info(),
-        authority: ctx.accounts.bidder.to_account_info(),
-    };
-    let cpi_program = ctx.accounts.token_program.to_account_info();
-    let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-    token::transfer(cpi_ctx, 1)?;
+    token::transfer(ctx.accounts.into_transfer_to_escrow_context(), 1)?;
 
     Ok(())
+}
+
+impl<'info> CreateOffer<'info> {
+    fn into_transfer_to_escrow_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
+        let cpi_accounts = Transfer {
+            from: self.bidder_nft_token_account.to_account_info().clone(),
+            to: self.nft_escrow_token_account.to_account_info().clone(),
+            authority: self.bidder.to_account_info().clone(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        CpiContext::new(cpi_program, cpi_accounts)
+    }
 }
