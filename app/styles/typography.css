@@ -1,0 +1,63 @@
+.heading-h1 {
+  @apply text-[4.5rem] leading-tight font-bold;
+}
+
+.heading-h2 {
+  @apply text-5xl leading-snug font-bold;
+}
+
+.heading-h3 {
+  @apply text-4xl leading-normal font-bold;
+}
+
+.heading-h4 {
+  @apply text-3xl leading-normal font-bold;
+}
+
+.heading-h5 {
+  @apply text-xl leading-normal font-semibold;
+}
+
+.heading-h6 {
+  @apply text-lg font-semibold;
+}
+
+.text-subtitle1 {
+  @apply text-base leading-relaxed font-semibold;
+}
+
+.text-subtitle2 {
+  @apply text-sm leading-extra-relaxed font-semibold;
+}
+
+.text-subtitle3 {
+  @apply text-13 leading-extra-relaxed font-semibold;
+}
+
+.text-body1 {
+  @apply text-base leading-relaxed;
+}
+
+.text-body2 {
+  @apply text-sm leading-extra-relaxed;
+}
+
+.text-body3 {
+  @apply text-13 leading-extra-relaxed;
+}
+
+.text-caption {
+  @apply text-xs leading-extra-relaxed;
+}
+
+.text-btn-lg {
+  @apply text-15 leading-extra-relaxed font-semibold;
+}
+
+.text-btn-md {
+  @apply text-sm leading-extra-relaxed font-semibold;
+}
+
+.text-btn-sm {
+  @apply text-13 leading-extra-relaxed font-semibold;
+}

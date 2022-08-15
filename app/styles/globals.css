@@ -1,0 +1,12 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "./components.css";
+@import "tailwindcss/utilities";
+@import "./typography.css";
+
+@layer base {
+  body {
+    @apply text-white bg-gray-900;
+    font-family: "Poppins", sans-serif;
+  }
+}

@@ -1,0 +1,14 @@
+[features]
+seeds = false
+[programs.localnet]
+nft_swap = "GMUrDTez1LG6QfrWEAfaN8JQjqHgmCW3ZhcftbohtwZn"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "localnet"
+wallet = "/Users/khacvy/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
