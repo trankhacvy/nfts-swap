@@ -4,7 +4,7 @@ import { Button } from "components/Button";
 import truncate from "utils/truncate";
 import toast from "react-hot-toast";
 import { useListingDetails } from "hooks/useListingDetails";
-import type { GetStaticPropsContext, NextPage } from "next";
+import type { GetStaticPropsContext } from "next";
 import { useRouter } from "next/router";
 import { OfferCard } from "components/OfferCard";
 import { Skeleton } from "components/Skeleton";
@@ -22,9 +22,13 @@ import { APP_NAME } from "constants/config";
 
 type ItemDetailsProps = {
   listing: Listings;
+  ogImage: string;
 };
 
-const ItemDetails = ({ listing: preloadListing }: ItemDetailsProps) => {
+const ItemDetails = ({
+  listing: preloadListing,
+  ogImage,
+}: ItemDetailsProps) => {
   const {
     push,
     query: { address },
@@ -41,8 +45,6 @@ const ItemDetails = ({ listing: preloadListing }: ItemDetailsProps) => {
   const isNotOwner =
     connected && publicKey?.toBase58() !== listing?.initializer;
 
-  if (isFirstLoading || !listing) return <ItemDetailSkeleton />;
-
   return (
     <div className="max-w-screen-xl mx-auto pt-20 pb-40">
       <NextSeo
@@ -51,10 +53,10 @@ const ItemDetails = ({ listing: preloadListing }: ItemDetailsProps) => {
         openGraph={{
           title: preloadListing?.name,
           description: [
-            `Collection: ${preloadListing.collection_name ?? "--"} ✔`,
+            `Collection: ${preloadListing?.collection_name ?? "--"} ✔`,
             "\n",
             "Attributes:",
-            (preloadListing.attributes ?? [])
+            (preloadListing?.attributes ?? [])
               .map(({ trait_type, value }) => `${trait_type}: ${value}`)
               .join("\n"),
           ]
@@ -64,78 +66,83 @@ const ItemDetails = ({ listing: preloadListing }: ItemDetailsProps) => {
             {
               width: 400,
               height: 400,
-              url: preloadListing?.image as string,
+              url: `/output/${preloadListing?.id}.png`,
             },
           ],
         }}
       />
-
-      <div className="w-full flex mb-20">
-        <div className="w-1/2 px-4">
-          <div className="rounded-3xl overflow-hidden">
-            <Image
-              className="w-full"
-              src={listing?.image}
-              alt={listing?.name}
-            />
+      {isFirstLoading || !listing ? (
+        <ItemDetailSkeleton />
+      ) : (
+        <>
+          <div className="w-full flex mb-20">
+            <div className="w-1/2 px-4">
+              <div className="rounded-3xl overflow-hidden">
+                <Image
+                  className="w-full"
+                  src={listing?.image}
+                  alt={listing?.name}
+                />
+              </div>
+            </div>
+            <div className="w-1/2 px-4">
+              <h2 className="heading-h3 mb-1">{listing?.name}</h2>
+              {listing?.initializer && (
+                <p className="text-body1 text-gray-500">
+                  Owner:{" "}
+                  <span className="font-semibold text-primary">
+                    {truncate(listing?.initializer, 8, true)}
+                  </span>
+                </p>
+              )}
+              <div className="mt-10">
+                <h4 className="heading-h4">🖼️ Attributes</h4>
+                <div className="mt-4 grid grid-cols-3 gap-6">
+                  {listing?.attributes?.map(({ trait_type, value }) => (
+                    <TraitCard
+                      key={`${trait_type}-${value}`}
+                      property={trait_type}
+                      value={value}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="mt-10">
+                <CancelButton isOwner={isOwner} listing={listing} />
+                {isNotOwner && (
+                  <Button
+                    onClick={() => push(`${asPath}/make-offer`)}
+                    className="w-full"
+                    size="lg"
+                  >
+                    Place Offer
+                  </Button>
+                )}
+                {!connected && (
+                  <WalletMultiButton className="h-10 w-full btn btn-solid" />
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="w-1/2 px-4">
-          <h2 className="heading-h3 mb-1">{listing?.name}</h2>
-          {listing?.initializer && (
-            <p className="text-body1 text-gray-500">
-              Owner:{" "}
-              <span className="font-semibold text-primary">
-                {truncate(listing?.initializer, 8, true)}
-              </span>
-            </p>
-          )}
-          <div className="mt-10">
-            <h4 className="heading-h4">🖼️ Attributes</h4>
-            <div className="mt-4 grid grid-cols-3 gap-6">
-              {listing?.attributes?.map(({ trait_type, value }) => (
-                <TraitCard
-                  key={`${trait_type}-${value}`}
-                  property={trait_type}
-                  value={value}
+          <div>
+            <h3 className="mb-4 heading-h4">
+              {" "}
+              {offers.length === 0 ? "No offer yet 😒." : "Offers"}
+            </h3>
+            <div className="w-full flex flex-nowrap overflow-x-auto space-x-6">
+              {offers.map((offer) => (
+                <OfferCard
+                  key={offer.id}
+                  offer={offer}
+                  listing={listing}
+                  className="w-[24%] flex-shrink-0 "
+                  onCancelCompleted={mutate}
                 />
               ))}
             </div>
           </div>
-          <div className="mt-10">
-            <CancelButton isOwner={isOwner} listing={listing} />
-            {isNotOwner && (
-              <Button
-                onClick={() => push(`${asPath}/make-offer`)}
-                className="w-full"
-                size="lg"
-              >
-                Place Offer
-              </Button>
-            )}
-            {!connected && (
-              <WalletMultiButton className="h-10 w-full btn btn-solid" />
-            )}
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3 className="mb-4 heading-h4">
-          {" "}
-          {offers.length === 0 ? "No offer yet 😒." : "Offers"}
-        </h3>
-        <div className="w-full flex flex-nowrap overflow-x-auto space-x-6">
-          {offers.map((offer) => (
-            <OfferCard
-              key={offer.id}
-              offer={offer}
-              listing={listing}
-              className="w-[24%] flex-shrink-0 "
-              onCancelCompleted={mutate}
-            />
-          ))}
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };
@@ -184,7 +191,7 @@ const CancelButton = ({ listing, isOwner }: CancelButtonProps) => {
 
 const ItemDetailSkeleton = () => {
   return (
-    <div className="max-w-screen-xl mx-auto pt-20 pb-40">
+    <>
       <div className="w-full flex mb-20">
         <div className="w-1/2 px-4">
           <Skeleton className="aspect-square rounded-3xl" />
@@ -194,7 +201,7 @@ const ItemDetailSkeleton = () => {
           <Skeleton className="w-1/2 h-5 rounded-xl" />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -230,6 +237,7 @@ export async function getStaticProps(context: GetStaticPropsContext) {
     if (address) {
       const repo = new ListingsRepository();
       const listing = await repo.findByMint(address as string);
+      await fetchOGImage(listing?.image ?? "", address as string);
       return {
         props: {
           listing,
@@ -244,5 +252,15 @@ export async function getStaticProps(context: GetStaticPropsContext) {
     };
   }
 }
+
+const fetchOGImage = async (image: string, address: string) => {
+  try {
+    await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_HOST}/api/image?imageUrl=${image}&address=${address}`
+    );
+  } catch (error) {
+    return "";
+  }
+};
 
 export default ItemDetails;
