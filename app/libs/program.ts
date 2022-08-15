@@ -5,8 +5,8 @@ import {
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
-import { NftSwap } from "../../target/types/nft_swap";
-import idl from "../../target/idl/nft_swap.json";
+import { NftSwap } from 'types/program_schema';
+import idl from 'types/idl.json';
 import { PROGRAM_ID } from "constants/program";
 import {
   getNftEscrowPDA,
