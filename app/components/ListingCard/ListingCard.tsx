@@ -17,6 +17,11 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
             <Image className="w-full" src={listing.image} alt={listing?.name} />
           </div>
           <div className="pt-5">
+            {listing.collection_address && (
+              <p className="text-caption text-secondary">
+                {listing.collection_name}
+              </p>
+            )}
             <h2 className="heading-h6 mb-1">{listing.name}</h2>
             <p className="text-body3 text-gray-500">
               By{" "}

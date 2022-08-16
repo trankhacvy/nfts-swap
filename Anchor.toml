@@ -1,13 +1,13 @@
 [features]
 seeds = false
-[programs.localnet]
-nft_swap = "GMUrDTez1LG6QfrWEAfaN8JQjqHgmCW3ZhcftbohtwZn"
+[programs.devnet]
+nft_swap = "HkPrTq3GowSRncEcNSFppSftU2KfwWG69yqaajJQTDQz"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/khacvy/.config/solana/id.json"
 
 [scripts]

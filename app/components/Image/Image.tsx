@@ -9,6 +9,7 @@ export const Image = ({ className, width, ...rest }: ImageProps) => {
       fallback="/images/placeholder.jpeg"
       className={cx("aspect-square object-cover", className)}
       width={width}
+      preview={false}
       {...rest}
     />
   );

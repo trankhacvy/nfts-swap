@@ -9,7 +9,7 @@ pub use state::*;
 pub mod errors;
 pub use errors::*;
 
-declare_id!("GMUrDTez1LG6QfrWEAfaN8JQjqHgmCW3ZhcftbohtwZn");
+declare_id!("HkPrTq3GowSRncEcNSFppSftU2KfwWG69yqaajJQTDQz");
 
 #[program]
 pub mod nft_swap {

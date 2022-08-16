@@ -84,20 +84,36 @@ const ItemDetails = ({ listing: preloadListing }: ItemDetailsProps) => {
             </div>
             <div className="w-1/2 px-4">
               <div className="flex items-center space-x-2">
-                <h2 className="heading-h3 mb-1">{listing?.name}</h2>
+                <h2 className="heading-h3">{listing?.name}</h2>
                 {isDone && (
                   <span className="px-2 py-1 text-body2 font-semibold rounded-xl bg-green-500">
                     Offer Accepted
                   </span>
                 )}
               </div>
+              {listing.collection_address && (
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://explorer.solana.com/address/${listing.collection_address}?cluster=devnet`}
+                  className="text-body2 text-secondary"
+                >
+                  {listing.collection_name}
+                </a>
+              )}
               {listing?.initializer && (
-                <p className="text-body1 text-gray-500">
-                  Owner:{" "}
-                  <span className="font-semibold text-primary">
-                    {truncate(listing?.initializer, 8, true)}
-                  </span>
-                </p>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://explorer.solana.com/address/${listing?.initializer}?cluster=devnet`}
+                >
+                  <p className="text-body2 text-gray-500">
+                    Owner:{" "}
+                    <span className="font-semibold text-primary">
+                      {truncate(listing?.initializer, 8, true)}
+                    </span>
+                  </p>
+                </a>
               )}
               <div className="mt-10">
                 <h4 className="heading-h4">🖼️ Attributes</h4>
