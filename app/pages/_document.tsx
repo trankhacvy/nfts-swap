@@ -4,6 +4,12 @@ export default function Document() {
   return (
     <Html>
       <Head>
+        <script
+          defer
+          data-domain="nfts-swap.vercel.app"
+          src="https://plausible.io/js/plausible.js"
+        ></script>
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
