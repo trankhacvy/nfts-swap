@@ -1,16 +1,6 @@
-import { useState } from "react";
-import { Nft } from "@metaplex-foundation/js";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { Button } from "components/Button";
 import { Modal } from "components/Modal";
-import toast from "react-hot-toast";
-import { useRouter } from "next/router";
-import { useAnchorProvider } from "hooks/useProvider";
-import { ExchangeProgram } from "libs/program";
-import { OffersRepository } from "libs/db";
-import { PublicKey } from "@solana/web3.js";
 import { Image } from "components/Image";
-import { TraitCard } from "components/TraitCard";
 import { Offer } from "types/schema";
 import Link from "next/link";
 

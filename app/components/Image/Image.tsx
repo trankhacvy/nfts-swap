@@ -1,18 +1,12 @@
 import RCImage, { ImageProps as RCImageProps } from "rc-image";
 import cx from "classnames";
 
-interface ImageProps extends RCImageProps {}
+interface ImageProps extends Omit<RCImageProps, "fallback"> {}
 
 export const Image = ({ className, width, ...rest }: ImageProps) => {
   return (
     <RCImage
-      placeholder={
-        <img
-          width={width}
-          className="w-full aspect-square object-cover"
-          src={"/images/placeholder.jpeg"}
-        />
-      }
+      fallback="/images/placeholder.jpeg"
       className={cx("aspect-square object-cover", className)}
       width={width}
       {...rest}
@@ -20,4 +14,4 @@ export const Image = ({ className, width, ...rest }: ImageProps) => {
   );
 };
 
-Image.displayName = 'Image'
+Image.displayName = "Image";
